@@ -1,14 +1,19 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import User from '../models/User';
 import { generateToken } from '../utils/jwt';
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (
+  req: Request,
+  res: Response,
+  _next: NextFunction
+): Promise<void> => {
   try {
     const { firstName, lastName, email, password, phone, address } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ message: 'Email already registered' });
+      res.status(409).json({ message: '❗Email already registered' });
+      return;
     }
 
     const newUser = new User({
@@ -35,22 +40,28 @@ export const register = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: '🚫 Internal server error' });
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  _next: NextFunction
+): Promise<void> => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: '🚫 Invalid credentials' });
+      return;
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: '🚫 Invalid credentials' });
+      return;
     }
 
     const token = generateToken(user._id.toString(), user.role);
@@ -66,6 +77,6 @@ export const login = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: '🚫 Internal server error' });
   }
 };
