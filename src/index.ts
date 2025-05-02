@@ -1,30 +1,26 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import vacationHomeRoutes from './routes/vacationHome.routes';
 
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || '';
+// Rutas
+app.use('/api/vacation-homes', vacationHomeRoutes);
 
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log('🟢 MongoDB conectado');
-
-    app.listen(PORT, () => {
-      console.log(`✅ Servidor corriendo en puerto ${PORT}`);
-    });
+// Conexión a MongoDB y levantamiento del servidor
+mongoose.connect(process.env.MONGO_URI!)
+  .then(() => {   
+    app.listen(PORT, () => console.log(`✅ Server running on port ${PORT} 🟢`));
   })
   .catch((err) => {
-    console.error('❌ Error conectando a MongoDB:', err);
+    console.error('❌ Failed to connect to MongoDB');
   });
-
-app.get('/', (_req: Request, res: Response) => {
-  res.send('GuaraníHost API funcionando 🚀');
-});
