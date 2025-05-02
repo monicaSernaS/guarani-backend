@@ -1,8 +1,8 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import vacationHomeRoutes from './routes/vacationHome.routes';
+import { connectDB } from './config/db';
 
 dotenv.config();
 
@@ -16,11 +16,12 @@ app.use(express.json());
 // Rutas
 app.use('/api/vacation-homes', vacationHomeRoutes);
 
-// Conexión a MongoDB y levantamiento del servidor
-mongoose.connect(process.env.MONGO_URI!)
-  .then(() => {   
+// Conexión a la base de datos y arranque del servidor
+connectDB()
+  .then(() => {
     app.listen(PORT, () => console.log(`✅ Server running on port ${PORT} 🟢`));
   })
   .catch((err) => {
-    console.error('❌ Failed to connect to MongoDB');
+    console.error('❌ Application failed to start due to DB connection error');
+    process.exit(1); // Cierra el proceso si la DB falla
   });
