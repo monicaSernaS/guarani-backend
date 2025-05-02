@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db';
 import authRoutes from './routes/auth.routes';
 import vacationHomeRoutes from './routes/vacationHome.routes';
+import adminRoutes from './routes/admin.routes';
 
 
 dotenv.config();
@@ -18,6 +19,8 @@ app.use(express.json());
 // Rutas
 app.use('/api/vacation-homes', vacationHomeRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+
 
 
 // Conexión a la base de datos y arranque del servidor
