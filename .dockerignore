@@ -1,0 +1,23 @@
+# Node modules y dependencias locales
+node_modules
+dist
+coverage
+
+# Archivos de entorno
+.env
+.env.local
+
+# Logs
+*.log
+
+# Archivos del sistema/editor
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+
+

@@ -1,24 +1,29 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
+import { AuthRequest, UserRole } from '../types/express';
 
-interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-  };
-}
+const validRoles: UserRole[] = ['admin', 'host', 'user'];
 
-export const requireRole = (...rolesAllowed: string[]) => {
+export const requireRole = (...rolesAllowed: UserRole[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
-    if (!req.user) {
-      res.status(401).json({ message: 'Unauthorized: No token provided' });
+    const user = req.user;
+
+    if (!user) {
+      res.status(401).json({ message: '🚫 Unauthorized: No user in request' });
       return;
     }
 
-    if (!rolesAllowed.includes(req.user.role)) {
-      res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+    const { role } = user;
+
+    if (!validRoles.includes(role)) {
+      res.status(403).json({ message: '❌ Invalid user role' });
       return;
     }
 
-    next(); // ✅ Si todo bien, pasa a la siguiente función
+    if (!rolesAllowed.includes(role)) {
+      res.status(403).json({ message: '❌ Forbidden: Insufficient permissions' });
+      return;
+    }
+
+    return next();
   };
 };

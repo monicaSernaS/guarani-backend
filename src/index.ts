@@ -5,6 +5,10 @@ import { connectDB } from './config/db';
 import authRoutes from './routes/auth.routes';
 import vacationHomeRoutes from './routes/vacationHome.routes';
 import adminRoutes from './routes/admin.routes';
+import userRoutes from './routes/user.routes';
+import hostRoutes from './routes/host.routes';
+import bookingRoutes from './routes/booking.routes';
+import tourPackageRoutes from './routes/tourPackage.routes';
 
 
 dotenv.config();
@@ -20,6 +24,10 @@ app.use(express.json());
 app.use('/api/vacation-homes', vacationHomeRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/host', hostRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/tour-packages', tourPackageRoutes);
 
 
 

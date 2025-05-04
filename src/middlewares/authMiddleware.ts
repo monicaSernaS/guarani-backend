@@ -1,25 +1,43 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { RequestHandler } from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { AuthRequest, UserRole } from '../types/express';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-
-interface AuthRequest extends Request {
-  user?: { id: string; role: string };
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('❌ JWT_SECRET is not defined in environment variables');
 }
 
-export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
+interface TokenPayload extends JwtPayload {
+  id: string;
+  role: UserRole;
+}
+
+export const authenticate: RequestHandler = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized' });
+
+  if (!authHeader?.startsWith('Bearer ')) {
+    res.status(401).json({ message: '🚫 Unauthorized: No token provided' });
+    return;
   }
 
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
-    req.user = { id: decoded.id, role: decoded.role }; // ✅ útil para control de acceso
-    next();
+    const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
+
+    if (!decoded.id || !decoded.role) {
+      res.status(401).json({ message: '❌ Invalid token structure' });
+      return;
+    }
+
+    (req as AuthRequest).user = {
+      id: decoded.id,
+      role: decoded.role,
+    };
+
+    next(); 
   } catch (error) {
-    res.status(401).json({ message: 'Invalid token' });
+    res.status(401).json({ message: '❌ Invalid token' });
+    return;
   }
 };
