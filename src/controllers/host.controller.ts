@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../types/express';
 import VacationHome from '../models/VacationHome';
 import Booking from '../models/Booking';
-import TourPackage from 'src/models/TourPackage';
+import TourPackage from '../models/TourPackage';
 
 // Dashboard del host
 export const getHostDashboard = async (req: AuthRequest, res: Response): Promise<void> => {

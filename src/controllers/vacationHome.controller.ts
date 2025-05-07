@@ -85,3 +85,36 @@ export const deleteHome = async (req: AuthRequest, res: Response): Promise<void>
     res.status(500).json({ message: '❌ Error al eliminar propiedad' });
   }
 };
+
+// Subida de imagen a una propiedad
+export const uploadVacationHomeImage = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (!req.file) {
+      res.status(400).json({ message: '❌ No se ha subido ninguna imagen' });
+      return;
+    }
+
+    const imageUrl = (req.file as any).path;
+
+    const home = await VacationHome.findById(id);
+    if (!home) {
+      res.status(404).json({ message: '❌ Propiedad no encontrada' });
+      return;
+    }
+
+    // Asegurarse de que home.images sea un arreglo
+    if (!Array.isArray(home.images)) {
+      home.images = [];
+    }
+
+    // Agregar la nueva imagen al arreglo de imágenes
+    home.images.push(imageUrl);
+    await home.save();
+
+    res.status(200).json({ message: '✅ Imagen subida correctamente', images: home.images });
+  } catch (error) {
+    res.status(500).json({ message: '❌ Error al subir imagen' });
+  }
+};

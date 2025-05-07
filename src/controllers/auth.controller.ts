@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
+import dotenv from 'dotenv';
 import User from '../models/User';
 import { generateToken } from '../utils/jwt';
+
+dotenv.config();
 
 export const register = async (
   req: Request,
@@ -23,7 +26,7 @@ export const register = async (
       password,
       phone,
       address,
-      role: 'user'
+      role: 'user' // por defecto
     });
 
     const savedUser = await newUser.save();
@@ -77,6 +80,52 @@ export const login = async (
     });
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({ message: '🚫 Internal server error' });
+  }
+};
+
+// Ruta protegida para crear el primer admin
+export const createAdmin = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const providedSecret = req.headers['x-admin-secret'];
+    const expectedSecret = process.env.ADMIN_CREATION_SECRET;
+
+    if (!providedSecret || providedSecret !== expectedSecret) {
+      res.status(403).json({ message: '❌ Unauthorized to create admin' });
+      return;
+    }
+
+    const existing = await User.findOne({ email: 'monica.admin@example.com' });
+    if (existing) {
+      res.status(400).json({ message: '⚠️ Admin already exists' });
+      return;
+    }
+
+    const admin = new User({
+      firstName: 'Monica',
+      lastName: 'Admin',
+      email: 'monica.admin@example.com',
+      password: 'monicaSecure123',
+      role: 'admin',
+      phone: '654321987',
+      address: 'Oficina Central'
+    });
+
+    await admin.save();
+    const token = generateToken(admin._id.toString(), admin.role);
+
+    res.status(201).json({
+      message: '✅ Admin created successfully',
+      user: {
+        email: admin.email,
+        token
+      }
+    });
+  } catch (error) {
+    console.error('Admin creation error:', error);
     res.status(500).json({ message: '🚫 Internal server error' });
   }
 };

@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../types/express';
 import TourPackage from '../models/TourPackage';
 import VacationHome from '../models/VacationHome';
+import { uploadImage } from './upload.controller'
 
 // Crear paquete turístico
 export const createTourPackage = async (req: AuthRequest, res: Response) => {
@@ -111,5 +112,38 @@ export const deletePackage = async (req: AuthRequest, res: Response) => {
     res.json({ message: '✅ Paquete eliminado' });
   } catch {
     res.status(500).json({ message: '❌ Error al eliminar paquete' });
+  }
+};
+
+// Subir imagen al paquete turístico
+export const uploadPackageImage = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Verificar si se subió una imagen
+    if (!req.file) {
+      res.status(400).json({ message: '❌ No se ha subido ninguna imagen' });
+      return;
+    }
+
+    const imageUrl = (req.file as any).path; // Usar Cloudinary o S3 para obtener la URL de la imagen subida
+
+    const pkg = await TourPackage.findById(id);
+    if (!pkg) {
+      res.status(404).json({ message: '❌ Paquete turístico no encontrado' });
+      return;
+    }
+
+    // Asegurar que images sea un arreglo y agregar la nueva URL
+    if (!Array.isArray(pkg.images)) {
+      pkg.images = [];
+    }
+
+    pkg.images.push(imageUrl); // Añadir la nueva imagen
+    await pkg.save();
+
+    res.status(200).json({ message: '✅ Imagen subida correctamente', images: pkg.images });
+  } catch (error) {
+    res.status(500).json({ message: '❌ Error al subir la imagen', error });
   }
 };

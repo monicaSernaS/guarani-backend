@@ -9,7 +9,7 @@ import userRoutes from './routes/user.routes';
 import hostRoutes from './routes/host.routes';
 import bookingRoutes from './routes/booking.routes';
 import tourPackageRoutes from './routes/tourPackage.routes';
-
+import uploadRoutes from './routes/upload.routes';
 
 dotenv.config();
 
@@ -28,6 +28,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/host', hostRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/tour-packages', tourPackageRoutes);
+app.use('/api/upload', uploadRoutes);
 
 
 

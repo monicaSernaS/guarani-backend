@@ -5,6 +5,7 @@ export interface ITourPackage extends Document {
   description?: string;
   price: number;
   available: boolean;
+  images?: string[];
   property?: Types.ObjectId;
   createdBy: Types.ObjectId;
 }

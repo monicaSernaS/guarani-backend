@@ -1,8 +1,17 @@
 FROM node:18-slim
 
-
+# Establece el directorio de trabajo
 WORKDIR /app
-COPY package*.json ./
+
+# Copia archivos de configuración necesarios para instalar dependencias correctamente
+COPY package*.json tsconfig.json ./
+
+# Instala todas las dependencias (incluyendo devDependencies)
 RUN npm install
+
+# Copia el resto del código fuente
 COPY . .
-CMD ["npx", "ts-node-dev", "--respawn", "src/index.ts"]
+
+# Comando para iniciar el backend en desarrollo con ts-node-dev
+CMD ["npx", "ts-node-dev", "--respawn", "--transpile-only", "src/index.ts"]
+
